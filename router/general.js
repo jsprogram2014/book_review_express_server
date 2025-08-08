@@ -6,6 +6,20 @@ const public_users = express.Router();
 
 let registered_user=[]
 
+// Check if the user with the given username and password exists
+const authenticatedUser = (username) => {
+    // Filter the users array for any user with the same username and password
+    let validusers = registered_user.filter((user) => {
+        return (user.username === username);
+    });
+    // Return true if any valid user is found, otherwise false
+    if (validusers.length > 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 public_users.post("/register", (req,res) => {
   //Write your code here
   const {username,password}=req.body
@@ -13,9 +27,12 @@ public_users.post("/register", (req,res) => {
   if(!username || !password){
     res.status(400).json({message:"Please make sure both fields are filled"})
   }
-  else{
+  if(!authenticatedUser(username)){
     registered_user.push({username,password})
     res.send("You have been successully registered")
+  }
+  else{
+    res.sendStatus(400).send('Please try another username')
   }
 });
 
@@ -50,3 +67,4 @@ public_users.get('/review/:isbn',function (req, res) {
 });
 
 module.exports.general = public_users;
+module.exports.registered_user=registered_user

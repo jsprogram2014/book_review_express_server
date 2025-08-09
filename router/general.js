@@ -1,15 +1,17 @@
 const express = require('express');
 let books = require("./booksdb.js");
-let isValid = require("./auth_users.js").isValid;
-let users = require("./auth_users.js").users;
+let registered_users=require("./registeredusersdb.js")
+// let isValid = require("./auth_users.js").isValid;
+// let users = require("./auth_users.js").users;
+
 const public_users = express.Router();
 
-let registered_user=[]
 
-// Check if the user with the given username and password exists
-const authenticatedUser = (username) => {
+
+// Check if the user with the given username
+const doesExist = (username) => {
     // Filter the users array for any user with the same username and password
-    let validusers = registered_user.filter((user) => {
+    let validusers = registered_users.filter((user) => {
         return (user.username === username);
     });
     // Return true if any valid user is found, otherwise false
@@ -20,6 +22,7 @@ const authenticatedUser = (username) => {
     }
 }
 
+//code to register customer
 public_users.post("/register", (req,res) => {
   //Write your code here
   const {username,password}=req.body
@@ -27,8 +30,8 @@ public_users.post("/register", (req,res) => {
   if(!username || !password){
     res.status(400).json({message:"Please make sure both fields are filled"})
   }
-  if(!authenticatedUser(username)){
-    registered_user.push({username,password})
+  if(!doesExist(username)){
+    registered_users.push({username,password})
     res.send("You have been successully registered")
   }
   else{
@@ -45,7 +48,9 @@ public_users.get('/',function (req, res) {
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn',function (req, res) {
   //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+  const isbn=req.params.isbn
+  let book=books[parseInt(isbn)]
+  return res.send(book)
  });
   
 // Get book details based on author
@@ -67,4 +72,4 @@ public_users.get('/review/:isbn',function (req, res) {
 });
 
 module.exports.general = public_users;
-module.exports.registered_user=registered_user
+// module.exports.registered_users=registered_users
